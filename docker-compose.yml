@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - '.:/var/www/'
+      - './_docker/nginx/conf.d/:/etc/nginx/conf.d/'
+    ports:
+      - 8080:80
+    depends_on:
+      - php
+    container_name: asteroid_nginx
+
+  php:
+    build:
+      context: .
+      dockerfile: _docker/php/Dockerfile
+    volumes:
+      - '.:/var/www/'
+      - './_docker/php/php.ini:/usr/local/etc/php/conf.d/php.ini'
+    depends_on:
+      - db
+    container_name: asteroid_php
+    environment:
+      - PHP_IDE_CONFIG=serverName=PHPSTORM
+    extra_hosts:
+        - "host.docker.internal:host-gateway"
+
+  db:
+    image: mysql:8.0
+#    restart: always
+    volumes:
+      - ./tmp/db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: asteroid
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 8101:3306
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    container_name: asteroid_db
+
+
+
+
