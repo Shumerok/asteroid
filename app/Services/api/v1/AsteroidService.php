@@ -6,6 +6,8 @@ namespace App\Services\api\v1;
 
 use App\Http\Resources\Api\v1\AsteroidResource;
 use App\Models\Asteroid;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class AsteroidService
@@ -44,7 +46,7 @@ class AsteroidService
         }
     }
 
-    public function getFastestHazardous(?array $data): ResourceCollection
+    public function getFastestHazardous(?array $data): ResourceCollection|JsonResponse
     {
         if (empty($data)) {
             $asteroids = Asteroid::orderBy('speed', 'desc')->get();
@@ -53,6 +55,7 @@ class AsteroidService
 
         if ($data['hazardous'] === 'true') {
             $asteroids = Asteroid::where('is_hazardous', 1)->orderBy('speed', 'desc')->get();
+            return $this->emptyHazardous($asteroids);
         }
 
         if ($data['hazardous'] === 'false') {
@@ -62,6 +65,19 @@ class AsteroidService
         return AsteroidResource::collection($asteroids);
     }
 
+    public function emptyHazardous(Collection $hazard): JsonResponse|ResourceCollection
+    {
+        if ($hazard->isEmpty()) {
+            return response()->json(['FYI' => "There are no hazardous asteroids"]);
+        }
+        return AsteroidResource::collection($hazard);
+    }
+
+    public function getHazardous(): ResourceCollection|JsonResponse
+    {
+        $asteroids = Asteroid::where('is_hazardous', 1)->get();
+        return $this->emptyHazardous($asteroids);
+    }
     private function JsonToArray(): array
     {
         $jsonNasa = file_get_contents(
@@ -100,6 +116,5 @@ class AsteroidService
 
         return $this->formattedArray;
     }
-
 }
 

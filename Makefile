@@ -14,11 +14,11 @@ down:
 migrate:
 	${DOCKER_EXEC} php artisan migrate
 
-link:
-	${DOCKER_EXEC} php artisan storage:link
-
 seed:
 	${DOCKER_EXEC} php artisan db:seed
+
+test:
+	${DOCKER_EXEC} php artisan test
 
 fresh:
 	${DOCKER_EXEC} php artisan m:fr
@@ -30,13 +30,18 @@ php:
 	${DOCKER_EXEC} bash
 
 pause:
-	sleep 5
+	sleep 3
 
 restart:
 	make down up
 
 init:
-	make build up composer pause migrate seed print link
+	make build up composer migrate print
 
 print:
-	@echo Welcome: http://localhost:8080
+	@echo http://localhost:8080/api/v1/ - hello
+	@echo http://localhost:8080/api/v1/neo/ - set or update data from https://api.nasa.gov/
+	@echo http://localhost:8080/api/v1/neo/fastest/ - get fastest asteroids.
+	@echo http://localhost:8080/api/v1/neo/fastest?hazardous=true - get fastest and hazardous asteroids order by speed "desc"
+	@echo http://localhost:8080/api/v1/neo/fastest?hazardous=false - get fastest and NOT hazardous asteroids order by speed "desc"
+
