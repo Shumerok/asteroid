@@ -21,7 +21,7 @@ seed:
 	${DOCKER_EXEC} php artisan db:seed
 
 fresh:
-	${DOCKER_EXEC} php artisan m:fr --seed
+	${DOCKER_EXEC} php artisan m:fr
 
 composer:
 	${DOCKER_EXEC} composer install
