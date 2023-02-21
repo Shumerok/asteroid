@@ -1,6 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\api\v1\AsteroidController;
+use App\Http\Controllers\api\v1\IndexController;
+use App\Http\Middleware\ApiMiddleware;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('/v1/', IndexController::class);
+Route::get('/v1/neo', [AsteroidController::class, 'getData']);
+Route::get('/v1/neo/fastest', [AsteroidController::class, 'fastest'])->middleware(ApiMiddleware::class);
+Route::get('/v1/neo/hazardous', [AsteroidController::class, 'hazardous']);
