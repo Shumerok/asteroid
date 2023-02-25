@@ -14,8 +14,11 @@
     </testsuites>
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">./app</directory>
+            <directory suffix=".php">tests</directory>
         </include>
+        <report>
+            <html outputDirectory="tests/report" lowUpperBound="30" highLowerBound="80"/>
+        </report>
     </coverage>
     <php>
         <env name="APP_ENV" value="testing"/>
