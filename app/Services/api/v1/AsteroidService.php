@@ -12,17 +12,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class AsteroidService
 {
-    const  API_KEY = 'unyceRDg4WwIvfHwBxZKWjzUCAZZVcHRaBZ16CXw';
-    private string $nowDate;
-    private string $threeDayAgo;
     private array $formattedArray = [];
-
-    public function __construct()
-    {
-        $this->nowDate = date('Y-m-d');
-        $this->threeDayAgo = date('Y-m-d', strtotime('-3 day'));
-//        $this->formattedArray = [];
-    }
 
     public function getData()
     {
@@ -82,18 +72,18 @@ class AsteroidService
     private function JsonToArray(): array
     {
         $jsonNasa = file_get_contents(
-            "https://api.nasa.gov/neo/rest/v1/feed?"
-            ."start_date=$this->threeDayAgo"
-            ."&end_date=$this->nowDate"
-            .'&api_key='.self::API_KEY
+            'https://api.nasa.gov/neo/rest/v1/feed?'
+            .'start_date='.config('asteroid.date_before')
+            .'&end_date='.config('asteroid.date_now')
+            .'&api_key='.config('asteroid.api_key')
         );
 
         $decodeJsonNasa = json_decode($jsonNasa, true);
-        $elements = $decodeJsonNasa['near_earth_objects'];
+        $days = $decodeJsonNasa['near_earth_objects'];
         $asteroids = [];
 
-        foreach ($elements as $value) {
-            foreach ($value as $element) {
+        foreach ($days as $day) {
+            foreach ($day as $element) {
                 $asteroids[] = self::keyValueExtractor($element);
             }
         }
@@ -101,9 +91,9 @@ class AsteroidService
         return $asteroids;
     }
 
-    private function keyValueExtractor($json): array
+    public function keyValueExtractor(array $data): array
     {
-        foreach ($json as $key => $value) {
+        foreach ($data as $key => $value) {
             if (is_array($value)) {
                 self::keyValueExtractor($value);
             } else {
