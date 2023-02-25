@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class ApiMiddleware
 {
@@ -17,8 +18,21 @@ class ApiMiddleware
     public function handle(Request $request, Closure $next)
     {
         $hazardous = $request->get('hazardous');
-        if ($hazardous !== 'true' && $hazardous !== 'false' && $hazardous !== null){
-            throw new \InvalidArgumentException('hazardous must be true or false you set: '.$hazardous);
+        $args = $hazardous !== null ? $hazardous : implode(',', $request->query->keys());
+        if ($hazardous == null && $request->getQueryString() !== null) {
+            throw new BadRequestException(
+                'hazardous value must be true or false you set: '.$args, 400
+            );
+        }
+
+        if ($hazardous !== 'true' && $hazardous !== 'false' && $hazardous !== null) {
+            throw new BadRequestException('hazardous value must be true or false you set: '.$hazardous, 400);
+        }
+
+        if (count($request->query->all()) >= 1 && !$request->has('hazardous')) {
+            throw new BadRequestException(
+                'hazardous value must be true or false you set: '.implode(',', $request->query->keys()), 400
+            );
         }
         return $next($request);
     }

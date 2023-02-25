@@ -15,13 +15,13 @@ class AsteroidService
     const  API_KEY = 'unyceRDg4WwIvfHwBxZKWjzUCAZZVcHRaBZ16CXw';
     private string $nowDate;
     private string $threeDayAgo;
-    private array $formattedArray;
+    private array $formattedArray = [];
 
     public function __construct()
     {
         $this->nowDate = date('Y-m-d');
         $this->threeDayAgo = date('Y-m-d', strtotime('-3 day'));
-        $this->formattedArray = [];
+//        $this->formattedArray = [];
     }
 
     public function getData()
@@ -78,6 +78,7 @@ class AsteroidService
         $asteroids = Asteroid::where('is_hazardous', 1)->get();
         return $this->emptyHazardous($asteroids);
     }
+
     private function JsonToArray(): array
     {
         $jsonNasa = file_get_contents(

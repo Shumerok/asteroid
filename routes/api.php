@@ -3,6 +3,7 @@
 use App\Http\Controllers\api\v1\AsteroidController;
 use App\Http\Controllers\api\v1\IndexController;
 use App\Http\Middleware\ApiMiddleware;
+use App\Http\Middleware\NoRequestMiddleware;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/v1/', IndexController::class);
-Route::get('/v1/neo', [AsteroidController::class, 'getData']);
+Route::get('/v1/', IndexController::class)->middleware(NoRequestMiddleware::class);
+Route::get('/v1/neo', [AsteroidController::class, 'getData'])->middleware(NoRequestMiddleware::class);
 Route::get('/v1/neo/fastest', [AsteroidController::class, 'fastest'])->middleware(ApiMiddleware::class);
-Route::get('/v1/neo/hazardous', [AsteroidController::class, 'hazardous']);
+Route::get('/v1/neo/hazardous', [AsteroidController::class, 'hazardous'])->middleware(NoRequestMiddleware::class);

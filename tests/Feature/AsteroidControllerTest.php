@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Tests\TestCase;
 
 class AsteroidControllerTest extends TestCase
@@ -20,6 +21,13 @@ class AsteroidControllerTest extends TestCase
         $this->assertEquals('application/json', $response->headers->get('content-type'));
     }
 
+    public function testHazardousWrong()
+    {
+        $this->expectException(BadRequestException::class);
+        $this->withoutExceptionHandling()->get('api/v1/neo/hazardous?ddd=sss');
+    }
+
+
     public function testFastestHazardousTrue()
     {
         $response = $this->get('api/v1/neo/fastest?hazardous=true');
@@ -36,7 +44,33 @@ class AsteroidControllerTest extends TestCase
 
     public function testFastestHazardousWrong()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(BadRequestException::class);
         $this->withoutExceptionHandling()->get('api/v1/neo/fastest?hazardous=asdasdasd');
     }
+
+    public function testFastestHazardousInt()
+    {
+        $one = 1;
+        $this->expectException(BadRequestException::class);
+        $this->withoutExceptionHandling()->get('api/v1/neo/fastest?hazardous='.$one);
+    }
+
+    public function testFastestHazardousUpperTRUE()
+    {
+        $this->expectException(BadRequestException::class);
+        $this->withoutExceptionHandling()->get('api/v1/neo/fastest?hazardous=TRUE');
+    }
+
+    public function testFastestHazardousUpperFALSE()
+    {
+        $this->expectException(BadRequestException::class);
+        $this->withoutExceptionHandling()->get('api/v1/neo/fastest?hazardous=FALSE');
+    }
+
+    public function testFastestHazardousAnyParams()
+    {
+        $this->expectException(BadRequestException::class);
+        $this->withoutExceptionHandling()->get('api/v1/neo/fastest?asdasd=asdads&sda=dd');
+    }
+
 }
