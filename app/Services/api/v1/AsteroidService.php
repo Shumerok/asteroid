@@ -19,20 +19,10 @@ class AsteroidService
         return $this->JsonToArray();
     }
 
-    public function createOrUpdate(array $asteroids): void
+    public function createOrUpdate(Collection $asteroids): void
     {
-        $transformToDbColumn = [];
-        foreach ($asteroids as $asteroid) {
-            $transformToDbColumn[] = [
-                'referenced' => $asteroid['neo_reference_id'],
-                'name' => $asteroid['name'],
-                'speed' => $asteroid['kilometers_per_hour'],
-                'is_hazardous' => $asteroid['is_potentially_hazardous_asteroid'],
-                'date' => $asteroid['close_approach_date']
-            ];
-        }
-        foreach ($transformToDbColumn as $value) {
-            Asteroid::upsert($value, 'referenced', ['name', 'speed', 'is_hazardous', 'date']);
+        foreach ($asteroids->all() as $asteroid) {
+            Asteroid::upsert($asteroid, 'referenced', ['name', 'speed', 'is_hazardous', 'date']);
         }
     }
 
@@ -43,13 +33,13 @@ class AsteroidService
             return AsteroidResource::collection($asteroids);
         }
 
-        if ($data['hazardous'] === 'true') {
-            $asteroids = Asteroid::where('is_hazardous', 1)->orderBy('speed', 'desc')->get();
-            return $this->emptyHazardous($asteroids);
+        if (!$data['hazardous']) {
+            $asteroids = Asteroid::where('is_hazardous', 0)->orderBy('speed', 'desc')->get();
         }
 
-        if ($data['hazardous'] === 'false') {
-            $asteroids = Asteroid::where('is_hazardous', 0)->orderBy('speed', 'desc')->get();
+        if ($data['hazardous']) {
+            $asteroids = Asteroid::where('is_hazardous', 1)->orderBy('speed', 'desc')->get();
+            return $this->emptyHazardous($asteroids);
         }
 
         return AsteroidResource::collection($asteroids);
@@ -69,7 +59,7 @@ class AsteroidService
         return $this->emptyHazardous($asteroids);
     }
 
-    private function JsonToArray(): array
+    private function JsonToArray(): Collection
     {
         $jsonNasa = file_get_contents(
             'https://api.nasa.gov/neo/rest/v1/feed?'
@@ -78,13 +68,22 @@ class AsteroidService
             .'&api_key='.config('asteroid.api_key')
         );
 
-        $decodeJsonNasa = json_decode($jsonNasa, true);
-        $days = $decodeJsonNasa['near_earth_objects'];
-        $asteroids = [];
+        $decodeJsonNasa = json_decode($jsonNasa);
+        $collection = new Collection($decodeJsonNasa);
+
+        $days = $collection->get('near_earth_objects');
+        $asteroids = new Collection();
 
         foreach ($days as $day) {
             foreach ($day as $element) {
-                $asteroids[] = self::keyValueExtractor($element);
+                $data = $element->close_approach_data[0];
+                $asteroids->put(null, [
+                    'referenced' => $element->neo_reference_id,
+                    'name' => $element->name,
+                    'speed' => $data->relative_velocity->kilometers_per_hour,
+                    'is_hazardous' => $element->is_potentially_hazardous_asteroid,
+                    'date' => $data->close_approach_date
+                ]);
             }
         }
 
@@ -98,7 +97,6 @@ class AsteroidService
                 self::keyValueExtractor($value);
             } else {
                 if (empty($value)) {
-                    $value = 0;
                     $this->formattedArray[$key] = $value;
                 }
                 $this->formattedArray[$key] = $value;
