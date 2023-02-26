@@ -28,7 +28,7 @@ class AsteroidServiceTest extends TestCase
             [
                 [
                     'car' => 'BMW',
-                    ['speed' => 500, 'parameters' => ['weight' => 2, 'length' => 4, 'empty_val' => '']],
+                    ['speed' => 500, 'parameters' => ['weight' => 2, 'length' => 4, 'empty_val' => true]],
 
                 ],
                 [
@@ -36,7 +36,7 @@ class AsteroidServiceTest extends TestCase
                     "speed" => 500,
                     "weight" => 2,
                     "length" => 4,
-                    'empty_val' => 0
+                    'empty_val' => true
                 ]
             ]
         ];

@@ -24,7 +24,16 @@ class AsteroidRequest extends FormRequest
     public function rules()
     {
         return [
-            'hazardous' => 'string|in:true,false',
+            'hazardous' => 'nullable|boolean',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if ($this->has('hazardous')) {
+            $this->merge([
+                'hazardous' => $this->boolean('hazardous')
+            ]);
+        }
     }
 }
