@@ -1,0 +1,24 @@
+{
+  "$schema": "vendor/infection/infection/resources/schema.json",
+  "source": {
+    "directories": [
+      "app/Http/Controllers/api/v1/",
+    ],
+    "excludes": [
+      "vendor",
+      "tests",
+      "tmp"
+    ]
+  },
+  "logs": {
+    "text": "infection.log",
+  },
+  "phpUnit": {
+    "configDir": "./",
+  },
+  "mutators": {
+    "@default": true
+  },
+  "testFramework": "phpunit",
+  "bootstrap": "./vendor/autoload.php"
+}

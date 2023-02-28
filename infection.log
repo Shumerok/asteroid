@@ -1,0 +1,25 @@
+Escaped mutants:
+================
+
+Timed Out mutants:
+==================
+
+Skipped mutants:
+================
+
+Not Covered mutants:
+====================
+
+1) /var/www/app/Http/Controllers/api/v1/AsteroidController.php:20    [M] PublicVisibility
+
+--- Original
++++ New
+@@ @@
+     {
+         $this->service = $service;
+     }
+-    public function getData() : JsonResponse
++    protected function getData() : JsonResponse
+     {
+         return $this->service->createOrUpdate($this->service->getData());
+     }
