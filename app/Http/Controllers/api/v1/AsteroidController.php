@@ -19,8 +19,7 @@ class AsteroidController extends Controller
 
     public function getData(): JsonResponse
     {
-        $this->service->createOrUpdate($this->service->getData());
-        return response()->json(['Data set' => 'Success']);
+        return $this->service->createOrUpdate($this->service->getData());
     }
 
     public function fastest(AsteroidRequest $request): ResourceCollection|JsonResponse

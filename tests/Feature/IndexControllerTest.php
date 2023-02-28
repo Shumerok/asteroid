@@ -19,4 +19,10 @@ class IndexControllerTest extends TestCase
         $this->expectException(BadRequestException::class);
         $this->withoutExceptionHandling()->get('api/v1/?ddd=sss');
     }
+
+    public function testIndexJsonEmpty()
+    {
+        $response = $this->get('api/v1/');
+        $response->assertExactJson(['hello' => 'MacPaw Internship 2022!']);
+    }
 }

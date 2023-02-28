@@ -12,18 +12,19 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class AsteroidService
 {
-    private array $formattedArray = [];
 
     public function getData()
     {
         return $this->JsonToArray();
     }
 
-    public function createOrUpdate(Collection $asteroids): void
+    public function createOrUpdate(Collection $asteroids): JsonResponse
     {
         foreach ($asteroids->all() as $asteroid) {
             Asteroid::upsert($asteroid, 'referenced', ['name', 'speed', 'is_hazardous', 'date']);
         }
+
+        return response()->json(['Data set' => 'Success']);
     }
 
     public function getFastestHazardous(?array $data): ResourceCollection|JsonResponse
@@ -34,11 +35,11 @@ class AsteroidService
         }
 
         if (!$data['hazardous']) {
-            $asteroids = Asteroid::where('is_hazardous', 0)->orderBy('speed', 'desc')->get();
+            $asteroids = Asteroid::where('is_hazardous', false)->orderBy('speed', 'desc')->get();
         }
 
         if ($data['hazardous']) {
-            $asteroids = Asteroid::where('is_hazardous', 1)->orderBy('speed', 'desc')->get();
+            $asteroids = Asteroid::where('is_hazardous', true)->orderBy('speed', 'desc')->get();
             return $this->emptyHazardous($asteroids);
         }
 
@@ -88,22 +89,6 @@ class AsteroidService
         }
 
         return $asteroids;
-    }
-
-    public function keyValueExtractor(array $data): array
-    {
-        foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                self::keyValueExtractor($value);
-            } else {
-                if (empty($value)) {
-                    $this->formattedArray[$key] = $value;
-                }
-                $this->formattedArray[$key] = $value;
-            }
-        }
-
-        return $this->formattedArray;
     }
 }
 

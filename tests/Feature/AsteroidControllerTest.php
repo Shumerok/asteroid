@@ -2,6 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\api\v1\AsteroidController;
+use App\Http\Requests\Api\v1\AsteroidRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Tests\TestCase;
 
@@ -71,6 +75,30 @@ class AsteroidControllerTest extends TestCase
     {
         $this->expectException(BadRequestException::class);
         $this->withoutExceptionHandling()->get('api/v1/neo/fastest?asdasd=asdads&sda=dd');
+    }
+
+    public function testIsPublicGetData()
+    {
+        $mock = $this->createMock(AsteroidController::class);
+
+        $mock->expects($this->once())->method('getData')->willReturn(new JsonResponse(['Data set' => 'Success']));
+        $mock->getData();
+    }
+
+    public function testIsPublicFastest()
+    {
+        $mock = $this->createMock(AsteroidController::class);
+        $col = new ResourceCollection(['adasd', 'adasd']);
+        $mock->expects($this->once())->method('fastest')->willReturn($col);
+        $mock->fastest(new AsteroidRequest([''], ['']));
+    }
+
+    public function testIsPublicHazardous()
+    {
+        $mock = $this->createMock(AsteroidController::class);
+        $col = new ResourceCollection(['adasd', 'adasd']);
+        $mock->expects($this->once())->method('hazardous')->willReturn($col);
+        $mock->hazardous();
     }
 
 }
